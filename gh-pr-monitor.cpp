@@ -1,17 +1,19 @@
 #pragma leco tool
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
+import hashley;
 import jason;
 import jute;
 import popen;
 import print;
 
-int main() try {
+static auto fetch(char * api) {
   char *args[] {
     strdup("gh"),
     strdup("api"),
-    strdup("/search/issues?q=is:pr+author:@me"),
+    api,
     0
   };
   p::proc proc { args };
@@ -20,9 +22,26 @@ int main() try {
     auto c = proc.last_line_read();
     heap = heap + jute::view::unsafe(c);
   }
+  return heap;
+}
 
+static auto fetch_latest_prs() {
+  tm t {};
+  auto limit = time(nullptr) - 86400 * 7;
+  gmtime_r(&limit, &t);
+
+  char cs[128] {};
+  strftime(cs, sizeof(cs), "%F", &t);
+  char search[1024] {};
+  snprintf(search, sizeof(search),
+           "/search/issues?q=is:pr+author:@me+created:>%s&per_page=50", cs);
+  return fetch(search);
+}
+
+int main() try {
   using namespace jason::ast::nodes;
 
+  auto heap = fetch_latest_prs();
   auto json = jason::parse(*heap);
   auto & root = cast<dict>(json);
   auto & items = cast<array>(root["items"]);
@@ -37,8 +56,38 @@ int main() try {
   auto secs = time(nullptr) - ts;
   int days = secs / 86400;
   if (days == 0) return 0;
+  put('[');
   if (days > 1) put("😰 ");
-  put(days, "d wo PRs");
+  put(days, "d wo PRs]");
+
+  hashley::niamh repos { 31 }; 
+  auto repo_count = 0;
+  int adds {};
+  int dels {};
+  for (auto & i : items) {
+    auto & item = cast<dict>(i);
+
+    auto & repo = cast<string>(item["repository_url"]);
+
+
+    auto & r = repos[*repo.str()];
+    if (!r) {
+      repo_count++;
+      r = 1;
+    }
+
+    auto & pr = cast<dict>(item["pull_request"]);
+    auto url = (*cast<string>(pr["url"]).str()).cstr();
+    auto heap = fetch(url.begin());
+    auto json = jason::parse(*heap);
+    auto & root = cast<dict>(json);
+    adds += cast<number>(root["additions"]).integer();
+    dels += cast<number>(root["deletions"]).integer();
+  }
+  put("[repos: ", repo_count, "][+", adds, '-', dels);
+  adds /= items.size();
+  dels /= items.size();
+  put(" avg: +", adds, "-", dels, "]");
 } catch (...) {
   return 1;
 }
