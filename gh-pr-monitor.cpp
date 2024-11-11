@@ -66,8 +66,6 @@ int main() try {
     auto & item = cast<dict>(i);
 
     auto & repo = cast<string>(item["repository_url"]);
-
-
     auto & r = repos[*repo.str()];
     if (!r) {
       repo_count++;
