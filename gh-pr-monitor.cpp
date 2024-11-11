@@ -56,9 +56,7 @@ int main() try {
   auto secs = time(nullptr) - ts;
   int days = secs / 86400;
   if (days == 0) return 0;
-  put('[');
-  if (days > 1) put("😰 ");
-  put(days, "d wo PRs]");
+  put('[', days, "d wo PRs]");
 
   hashley::niamh repos { 31 }; 
   auto repo_count = 0;
