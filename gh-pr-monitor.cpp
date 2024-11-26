@@ -38,6 +38,12 @@ static auto fetch_latest_prs() {
   return fetch(search);
 }
 
+static auto put_pad(jason::ast::nodes::string s, int n) {
+  constexpr jute::view pad = "                                                                  ";
+  auto padded = s.str() + pad;
+  put((*padded).subview(n).before);
+}
+
 int main(int argc, char ** argv) try {
   using namespace jason::ast::nodes;
 
@@ -93,7 +99,10 @@ int main(int argc, char ** argv) try {
       auto & repo = cast<dict>(head["repo"]);
       auto & name = cast<string>(repo["name"]);
 
-      putln("-- [", name.str(), "] ", title.str(), " +", a, "-", d);
+      put("-- ");
+      put_pad(name, 25);
+      putf(" \e[0;32m+%3d \e[0;31m-%3d \e[0m", a, d);
+      putln(title.str());
     }
   }
   put("[repos: ", repo_count, "][+", adds, '-', dels);
