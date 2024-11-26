@@ -38,8 +38,10 @@ static auto fetch_latest_prs() {
   return fetch(search);
 }
 
-int main() try {
+int main(int argc, char ** argv) try {
   using namespace jason::ast::nodes;
+
+  bool verbose = argc > 1;
 
   auto heap = fetch_latest_prs();
   auto json = jason::parse(*heap);
@@ -57,6 +59,7 @@ int main() try {
   int days = secs / 86400;
   if (days > 0) put('[', days, "d wo PRs]");
   put('[', items.size(), " PRs]");
+  if (verbose) putln();
 
   hashley::niamh repos { 31 }; 
   auto repo_count = 0;
@@ -77,13 +80,27 @@ int main() try {
     auto heap = fetch(url.begin());
     auto json = jason::parse(*heap);
     auto & root = cast<dict>(json);
-    adds += cast<number>(root["additions"]).integer();
-    dels += cast<number>(root["deletions"]).integer();
+    auto a = cast<number>(root["additions"]).integer();
+    auto d = cast<number>(root["deletions"]).integer();
+
+    adds += a;
+    dels += d;
+
+    if (verbose) {
+      auto & title = cast<string>(root["title"]);
+
+      auto & head = cast<dict>(root["head"]);
+      auto & repo = cast<dict>(head["repo"]);
+      auto & name = cast<string>(repo["name"]);
+
+      putln("-- [", name.str(), "] ", title.str(), " +", a, "-", d);
+    }
   }
   put("[repos: ", repo_count, "][+", adds, '-', dels);
   adds /= items.size();
   dels /= items.size();
   put(" avg: +", adds, "-", dels, "]");
+  if (verbose) putln();
 } catch (...) {
   return 1;
 }
