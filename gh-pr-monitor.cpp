@@ -102,6 +102,7 @@ int main(int argc, char ** argv) try {
       put("-- ");
       put_pad(name, 25);
       putf(" \e[0;32m+%3d \e[0;31m-%3d \e[0m", a, d);
+      if (!cast<boolean>(root["merged"])) put("\e[0;33m[unmerged]\e[0m ");
       putln(title.str());
     }
   }
