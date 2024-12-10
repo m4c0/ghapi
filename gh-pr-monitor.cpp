@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 import hashley;
 import jason;
@@ -44,10 +45,10 @@ static auto put_pad(jason::ast::nodes::string s, int n) {
   put((*padded).subview(n).before);
 }
 
-int main(int argc, char ** argv) try {
+int main() try {
   using namespace jason::ast::nodes;
 
-  bool verbose = argc > 1;
+  bool verbose = isatty(STDOUT_FILENO);
 
   auto heap = fetch_latest_prs();
   auto json = jason::parse(*heap);
