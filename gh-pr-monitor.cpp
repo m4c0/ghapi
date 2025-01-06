@@ -54,6 +54,10 @@ int main() try {
   auto json = jason::parse(*heap);
   auto & root = cast<dict>(json);
   auto & items = cast<array>(root["items"]);
+  if (items.size() == 0) {
+    putln("[No PRs in 7 days]");
+    return 0;
+  }
   auto & first_item = cast<dict>(*items.begin());
   auto & created_at = cast<string>(first_item["created_at"]);
 
