@@ -99,12 +99,15 @@ int main() try {
 
     if (verbose) {
       auto & title = cast<string>(root["title"]);
+      auto & created_at = cast<string>(root["created_at"]);
 
       auto & head = cast<dict>(root["head"]);
       auto & repo = cast<dict>(head["repo"]);
       auto & name = cast<string>(repo["name"]);
 
-      put("-- ");
+      put("-- \e[38;5;238m");
+      put(created_at.str());
+      put(" \e[0m");
       put_pad(name, 25);
       putf(" \e[0;32m+%3d \e[0;31m-%3d \e[0m", a, d);
       if (!cast<boolean>(root["merged"])) put("\e[0;33m[unmerged]\e[0m ");
