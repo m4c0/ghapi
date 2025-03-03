@@ -1,30 +1,13 @@
 #pragma leco tool
 #include <stdio.h>
-#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
+import fetch;
 import hashley;
 import jason;
 import jute;
-import popen;
 import print;
-
-static auto fetch(char * api) {
-  char *args[] {
-    strdup("gh"),
-    strdup("api"),
-    api,
-    0
-  };
-  p::proc proc { args };
-  jute::heap heap {};
-  while (proc.gets()) {
-    auto c = proc.last_line_read();
-    heap = heap + jute::view::unsafe(c);
-  }
-  return heap;
-}
 
 static auto fetch_latest_prs() {
   tm t {};
