@@ -16,10 +16,7 @@ static auto fetch_latest_prs() {
 
   char cs[128] {};
   strftime(cs, sizeof(cs), "%F", &t);
-  char search[1024] {};
-  snprintf(search, sizeof(search),
-           "/search/issues?q=is:pr+author:@me+created:>%s&per_page=50", cs);
-  return fetch(search);
+  return fetch("/search/issues?q=is:pr+author:@me+created:>%s&per_page=50", cs);
 }
 
 static auto put_pad(jason::ast::nodes::string s, int n) {
